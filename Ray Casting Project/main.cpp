@@ -1,38 +1,38 @@
-#include <SFML/Graphics.hpp> //Библиотека для работы с графикой "sf::"
+#include <SFML/Graphics.hpp> //Library for working with graphics "sf::"
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
 #include <iostream>
 
 int main() {
     
-    //ширина и высота экрана
+    //screen width and height
     int w = 1280;
     int h = 720;
 
-    //создаём окно. sf::Style::Fullscreen - на полный экран, sf::Style::Titlebar - имеет имя, sf::Style::Close - можно закрыть
+    //creating a window. sf::Style::Fullscreen - to full screen, sf::Style::Titlebar - has a name, sf::Style::Close - you can close
     sf::RenderWindow window(sf::VideoMode(w, h), "RayCasting", sf::Style::Titlebar | sf::Style::Close);
     
-    //ограничение кадров в секунду
+    //FPS limit
     window.setFramerateLimit(60);
     
-    //цикл работы окна
+    //window operation cycle
     while (window.isOpen()) {   
         
-        //задаём переменную цикла
+        //setting the loop variable
         sf::Event event;
         
-        //проверка всех событий за цикл
+        //checking all events per cycle
         while (window.pollEvent(event)) {
             
-            //запрос закрытия
+            //closing request
             if (event.type == sf::Event::Closed)
                 window.close();
         }
         
-        //очистить окно
+        //clear the window
         window.clear();
         
-        //закрасить окно (вывести картинку)
+        //paint over the window (display a picture)
         window.display();
     }
  
