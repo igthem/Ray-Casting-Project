@@ -1,8 +1,6 @@
 #include <SFML/Graphics.hpp> //Library for working with graphics "sf::"
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
-//#include <cmath>
-//#include <vector>
 #include <iostream>
 
 //deg2rad
@@ -83,7 +81,7 @@ int main() {
             pixels[w * j * 4 + i + 3] = 255;
         }
     }
-    //int j = 0; j < h; j++
+    
     texture.update(pixels);
 
     //window operation cycle
