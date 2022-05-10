@@ -1,9 +1,10 @@
 #include <SFML/Graphics.hpp> //Library for working with graphics "sf::"
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
+#include <vector>
 #include <iostream>
 
-//реализуй скал€рное произведение векторов
+//scalar multiplication
 float v_mul(sf::Vector3f a, sf::Vector3f b)
 {
     return(a.x * b.x + a.y * b.y + a.z * b.z);
@@ -28,6 +29,7 @@ sf::Vector3f v_norm(sf::Vector3f v)
     return v;
 }
 
+//vector multiplication
 sf::Vector3f v_cross(sf::Vector3f a, sf::Vector3f b)
 {
     sf::Vector3f c
@@ -57,8 +59,9 @@ public:
         norm = v_cross(p1-p0, p2-p0);
     }
     //destructor
-    ~Triangle() {};
-    sf::Vector3f intersect(sf::Vector3f ro, sf::Vector3f rd) //ro - camera position; rd - ray from camera
+    ~Triangle() {}
+
+    float intersect(sf::Vector3f ro, sf::Vector3f rd) //ro - camera position; rd - ray from camera
     {
         sf::Vector3f v1v0 = p1 - p0;
         sf::Vector3f v2v0 = p2 - p0;
@@ -70,8 +73,8 @@ public:
         float t = d * v_mul(-norm, rov0);
         if (u < 0.0f || v < 0.0f || (u + v) > 1.0f || t < 0.0f)
             t = -1.0f; 
-        sf::Vector3f e(t, u, v);
-        return e;
+        //sf::Vector3f e(t, u, v);
+        return t;
     }
     float r()
     {
@@ -84,6 +87,10 @@ public:
     float b()
     {
         return colour.z;
+    }
+    sf::Vector3f rgb()
+    {
+        return colour;
     }
 };
 
@@ -116,10 +123,24 @@ int main() {
     sf::Vector3f dir_cam(1.0f, 0.0f, 0.0f);
 
     //triangle ---------------------------------------------------------------------------------------------------------------
+    
+    //number of triangles
+    const int c_triangles = 4;
+
+    float* v_dt = new float [c_triangles];
+    sf::Vector3f* v_dc = new sf::Vector3f[c_triangles];
+    
     //colour vec
-    sf::Vector3f colour1(255.0f, 0.0f, 155.0f); // 0.0 <= colour < 255.0 (r,g,b)
+    sf::Vector3f colour1(255.0f, 0.0f, 0.0f); // 0.0 <= colour < 255.0 (r,g,b)
+    sf::Vector3f colour2(0.0f, 255.0f, 0.0f);
+    sf::Vector3f colour3(0.0f, 0.0f, 255.0f);
     
     Triangle t1(sf::Vector3f { 0.0f, 5.0f, 0.0f }, sf::Vector3f { 0.0f, 0.0f, 5.0f }, sf::Vector3f { 5.0f, 0.0f, 0.0f }, colour1);
+    Triangle t2(sf::Vector3f { 6.0f, -2.0f, 0.0f }, sf::Vector3f { 6.0f, 6.0f, 0.0f }, sf::Vector3f { 10.0f, 0.0f, 6.0f }, colour2);
+    Triangle t3(sf::Vector3f{ 4.0f, -4.0f, 4.0f }, sf::Vector3f{ 4.0f, -4.0f, 2.0f }, sf::Vector3f{ 5.0f, 4.0f, 4.0f }, colour3);
+    Triangle t4(sf::Vector3f{ 4.0f, -4.0f, 2.0f }, sf::Vector3f{ 5.0f, 4.0f, 4.0f }, sf::Vector3f{ 5.0f, 4.0f, 2.0f }, colour3);
+
+    Triangle trs[c_triangles] = { t1, t2, t3, t4 };
 
     // -----------------------------------------------------------------------------------------------------------------------
     //matrix of vectors
@@ -202,24 +223,48 @@ int main() {
         {
             for (int i = 0; i < w * 4; i += 4)
             {
-                sf::Vector3f abob = t1.intersect(cam, vecs[i / 4][j]);
-                if (abob.x != -1.0f)
+                for (int c = 0; c < c_triangles; c++)
                 {
-                    pixels[w * j * 4 + i] = t1.r();
-                    pixels[w * j * 4 + i + 1] = t1.g();
-                    pixels[w * j * 4 + i + 2] = t1.b();
-                    float a = 55 + 200.0f / abob.x * 8.0f; 
-                    if (a <= 255.0f)
-                        pixels[w * j * 4 + i + 3] = a;
-                    else
-                        pixels[w * j * 4 + i + 3] = 255;
+                    v_dt[c] = trs[c].intersect(cam, vecs[i / 4][j]);
                 }
-                else
+                float max_t = v_dt[0];
+                int count = 0; //если поставить -1, то будет интересный баг
+                for (int k = 0; k < c_triangles; k++)
+                {
+                    if (v_dt[k] > max_t)
+                    {
+                        max_t = v_dt[k];
+                        count = k;
+                    }
+                }
+                
+                if (max_t == -1.0f)
                 {
                     pixels[w * j * 4 + i] = 255;
                     pixels[w * j * 4 + i + 1] = 255;
                     pixels[w * j * 4 + i + 2] = 255;
                     pixels[w * j * 4 + i + 3] = 255;
+                }
+                else
+                {
+                    float min_t = max_t;
+                    for (int k = 0; k < c_triangles; k++)
+                    {
+                        if (v_dt[k] < min_t && v_dt[k] >= 0.0f)
+                        {
+                            min_t = v_dt[k];
+                            count = k;
+                        }
+                    }
+                    
+                    pixels[w * j * 4 + i] = trs[count].r();
+                    pixels[w * j * 4 + i + 1] = trs[count].g();
+                    pixels[w * j * 4 + i + 2] = trs[count].b();
+                    float a = 55 + 200.0f / min_t * 10.0f;
+                    if (a <= 255.0f)
+                        pixels[w * j * 4 + i + 3] = a;
+                    else
+                        pixels[w * j * 4 + i + 3] = 255;
                 }
             }
         }
@@ -243,6 +288,9 @@ int main() {
         delete[]vecs[i];
     }
     delete[]vecs;
+
+    delete[] v_dt;
+    delete[] v_dc;
 
     return 0;
 }
