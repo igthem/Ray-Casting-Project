@@ -39,18 +39,6 @@ sf::Vector3f v_cross(sf::Vector3f a, sf::Vector3f b)
     return(c);
 }
 
-void prnt_clr(sf::Uint8* pixels, int h, int w, float r, float g, float b, float a)
-{
-    for (int j = 0; j < h; j++) {
-        for (int i = 0; i < w * 4; i += 4) {
-            pixels[w * j * 4 + i] = r;
-            pixels[w * j * 4 + i + 1] = g;
-            pixels[w * j * 4 + i + 2] = b;
-            pixels[w * j * 4 + i + 3] = a;
-        }
-    }
-}
-
 class Triangle {
 private:
         sf::Vector3f p0, p1, p2, colour, norm;
@@ -68,10 +56,8 @@ public:
 
         norm = v_cross(p1-p0, p2-p0);
     }
-
     //destructor
     ~Triangle() {};
-
     sf::Vector3f intersect(sf::Vector3f ro, sf::Vector3f rd) //ro - camera position; rd - ray from camera
     {
         sf::Vector3f v1v0 = p1 - p0;
@@ -87,7 +73,6 @@ public:
         sf::Vector3f e(t, u, v);
         return e;
     }
-
     float r()
     {
         return colour.x;
@@ -133,6 +118,7 @@ int main() {
     //colour vec
     sf::Vector3f colour(10.0f, 255.0f, 10.0f); // 0.0 <= colour < 255.0 (r,g,b)
 
+    //triangle
     sf::Vector3f a{ 0.0f, 5.0f, 0.0f };
     sf::Vector3f b{ 0.0f, 0.0f, 5.0f };
     sf::Vector3f c{ 5.0f, 0.0f, 0.0f };
@@ -144,7 +130,6 @@ int main() {
     {
         vecs[i] = new sf::Vector3f[h];
     }
-
     for (int i = 0; i < w; i++)
     {
         for (int j = 0; j < h; j++)
@@ -153,24 +138,18 @@ int main() {
             vecs[i][j].y = i - (w / 2);
             vecs[i][j].z = j - (h / 2);
             vecs[i][j] = v_norm(vecs[i][j]);
-
-            //cout << vecs[i][j].x << " " << vecs[i][j].y << " " << vecs[i][j].z << endl;
         }
     }
 
+    //pixels
     sf::Uint8* pixels = new sf::Uint8[w * h * 4];
 
+    //texture
     sf::Texture texture;
     texture.create(w, h);
 
+    //sprite
     sf::Sprite sprite(texture);
-
-    sf::Vector3f s1_v(5.0f, 0.0f, 0.0f);
-
-
-    sf::Text xyz;
-
-    xyz.setString("x: {0} \ny: {1} \nz: {2}");
 
     //window operation cycle -------------------------------------------------------------------------------------------------
     while (window.isOpen()) {
@@ -185,9 +164,10 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
 
+            //controls
             if (event.type == sf::Event::KeyPressed)
             {
-                if (event.key.code == sf::Keyboard::Escape)  // Escape
+                if (event.key.code == sf::Keyboard::Escape)
                 {
                     window.close();
                     break;
@@ -219,6 +199,7 @@ int main() {
             }
         }
 
+        //checking 
         for (int j = h - 1; j >= 0; j--)
         {
             for (int i = 0; i < w * 4; i += 4)
@@ -245,12 +226,13 @@ int main() {
             }
         }
 
+        //updating texture
         texture.update(pixels);
 
         //clear the window
         window.clear();
         
-        window.draw(xyz);
+        //draw
         window.draw(sprite);
 
         //paint over the window (display a picture)
