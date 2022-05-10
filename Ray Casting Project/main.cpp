@@ -68,7 +68,7 @@ public:
         float u = d * v_mul(-q, v2v0);
         float v = d * v_mul(q, v1v0);
         float t = d * v_mul(-norm, rov0);
-        if (u < 0.0f || v < 0.0f || (u + v) > 1.0f)
+        if (u < 0.0f || v < 0.0f || (u + v) > 1.0f || t < 0.0f)
             t = -1.0f; 
         sf::Vector3f e(t, u, v);
         return e;
@@ -115,15 +115,13 @@ int main() {
     //camera direction
     sf::Vector3f dir_cam(1.0f, 0.0f, 0.0f);
 
+    //triangle ---------------------------------------------------------------------------------------------------------------
     //colour vec
-    sf::Vector3f colour(10.0f, 255.0f, 10.0f); // 0.0 <= colour < 255.0 (r,g,b)
+    sf::Vector3f colour1(255.0f, 0.0f, 155.0f); // 0.0 <= colour < 255.0 (r,g,b)
+    
+    Triangle t1(sf::Vector3f { 0.0f, 5.0f, 0.0f }, sf::Vector3f { 0.0f, 0.0f, 5.0f }, sf::Vector3f { 5.0f, 0.0f, 0.0f }, colour1);
 
-    //triangle
-    sf::Vector3f a{ 0.0f, 5.0f, 0.0f };
-    sf::Vector3f b{ 0.0f, 0.0f, 5.0f };
-    sf::Vector3f c{ 5.0f, 0.0f, 0.0f };
-    Triangle t1(a, b, c, colour);
-
+    // -----------------------------------------------------------------------------------------------------------------------
     //matrix of vectors
     sf::Vector3f** vecs = new sf::Vector3f * [w];
     for (int i = 0; i < w; i++)
