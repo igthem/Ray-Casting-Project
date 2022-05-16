@@ -1,4 +1,4 @@
-#include <SFML/Graphics.hpp> //Library for working with graphics "sf::" тест русского языка
+#include <SFML/Graphics.hpp> //Library for working with graphics "sf::" С‚РµСЃС‚ СЂСѓСЃСЃРєРѕРіРѕ СЏР·С‹РєР° 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
 #include "VecFunctions.h"
@@ -138,7 +138,7 @@ int main() {
                     v_dt[c] = trs[c].intersect(cam, vecs[i / 4][j]);
                 }
                 float max_t = v_dt[0];
-                int count = 0; //если поставить -1, то будет интересный баг
+                int count = 0; //РµСЃР»Рё РїРѕСЃС‚Р°РІРёС‚СЊ -1, С‚Рѕ Р±СѓРґРµС‚ РёРЅС‚РµСЂРµСЃРЅС‹Р№ Р±Р°Рі
                 for (int k = 0; k < c_triangles; k++)
                 {
                     if (v_dt[k] > max_t)
