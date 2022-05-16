@@ -1,98 +1,11 @@
-#include <SFML/Graphics.hpp> //Library for working with graphics "sf::"
+#include <SFML/Graphics.hpp> //Library for working with graphics "sf::" тест русского языка
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
+#include "VecFunctions.h"
+#include "Triangle.h"
 #include <vector>
 #include <iostream>
-
-//scalar multiplication
-float v_mul(sf::Vector3f a, sf::Vector3f b)
-{
-    return(a.x * b.x + a.y * b.y + a.z * b.z);
-}
-//deg2rad
-float deg2rad(float x)
-{
-    return x * 3.14159265358979f / 180.0f;
-}
-
-//vector len
-float v_len(sf::Vector3f v)
-{
-    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-//vector normalisation 
-sf::Vector3f v_norm(sf::Vector3f v)
-{
-    float len = v_len(v);
-    v = v * (1 / len);
-    return v;
-}
-
-//vector multiplication
-sf::Vector3f v_cross(sf::Vector3f a, sf::Vector3f b)
-{
-    sf::Vector3f c
-    { 
-        a.y * b.z - b.y * a.z, 
-        a.z * b.x - b.z * a.x, 
-        a.x * b.y - b.x * a.y 
-    };
-    return(c);
-}
-
-class Triangle {
-private:
-        sf::Vector3f p0, p1, p2, colour, norm;
-public:
-    //constructor
-    Triangle(const sf::Vector3f& a, const sf::Vector3f& b, const sf::Vector3f& c, const sf::Vector3f d)
-    {
-        p0 = a;
-        p0.z = -p0.z;
-        p1 = b;
-        p1.z = -p1.z;
-        p2 = c;
-        p2.z = -p2.z;
-        colour = d;
-
-        norm = v_cross(p1-p0, p2-p0);
-    }
-    //destructor
-    ~Triangle() {}
-
-    float intersect(sf::Vector3f ro, sf::Vector3f rd) //ro - camera position; rd - ray from camera
-    {
-        sf::Vector3f v1v0 = p1 - p0;
-        sf::Vector3f v2v0 = p2 - p0;
-        sf::Vector3f rov0 = ro - p0;
-        sf::Vector3f  q = v_cross(rov0, rd);
-        float d = 1.0f / v_mul(rd, norm); 
-        float u = d * v_mul(-q, v2v0);
-        float v = d * v_mul(q, v1v0);
-        float t = d * v_mul(-norm, rov0);
-        if (u < 0.0f || v < 0.0f || (u + v) > 1.0f || t < 0.0f)
-            t = -1.0f; 
-        //sf::Vector3f e(t, u, v);
-        return t;
-    }
-    float r()
-    {
-        return colour.x;
-    }
-    float g()
-    {
-        return colour.y;
-    }
-    float b()
-    {
-        return colour.z;
-    }
-    sf::Vector3f rgb()
-    {
-        return colour;
-    }
-};
+#include <cmath>
 
 //start ----------------------------------------------------------------------------------------------------------------------
 using namespace std;
@@ -111,9 +24,6 @@ int main() {
     //FPS limit
     window.setFramerateLimit(60);
 
-    //FOV
-    float FOV_deg = 90.0f;
-
     float speed = 0.1f;
 
     //camera start position
@@ -123,20 +33,20 @@ int main() {
     sf::Vector3f dir_cam(1.0f, 0.0f, 0.0f);
 
     //triangle ---------------------------------------------------------------------------------------------------------------
-    
+
     //number of triangles
     const int c_triangles = 4;
 
-    float* v_dt = new float [c_triangles];
+    float* v_dt = new float[c_triangles];
     sf::Vector3f* v_dc = new sf::Vector3f[c_triangles];
-    
+
     //colour vec
-    sf::Vector3f colour1(255.0f, 0.0f, 0.0f); // 0.0 <= colour < 255.0 (r,g,b)
-    sf::Vector3f colour2(0.0f, 255.0f, 0.0f);
-    sf::Vector3f colour3(0.0f, 0.0f, 255.0f);
-    
-    Triangle t1(sf::Vector3f { 0.0f, 5.0f, 0.0f }, sf::Vector3f { 0.0f, 0.0f, 5.0f }, sf::Vector3f { 5.0f, 0.0f, 0.0f }, colour1);
-    Triangle t2(sf::Vector3f { 6.0f, -2.0f, 0.0f }, sf::Vector3f { 6.0f, 6.0f, 0.0f }, sf::Vector3f { 10.0f, 0.0f, 6.0f }, colour2);
+    sf::Vector3i colour1(255, 0, 0); // 0.0 <= colour < 255.0 (r,g,b)
+    sf::Vector3i colour2(0, 255, 0);
+    sf::Vector3i colour3(0, 0, 255);
+
+    Triangle t1(sf::Vector3f{ 0.0f, 5.0f, 0.0f }, sf::Vector3f{ 0.0f, 0.0f, 5.0f }, sf::Vector3f{ 5.0f, 0.0f, 0.0f }, colour1);
+    Triangle t2(sf::Vector3f{ 6.0f, -2.0f, 0.0f }, sf::Vector3f{ 6.0f, 6.0f, 0.0f }, sf::Vector3f{ 10.0f, 0.0f, 6.0f }, colour2);
     Triangle t3(sf::Vector3f{ 4.0f, -4.0f, 4.0f }, sf::Vector3f{ 4.0f, -4.0f, 2.0f }, sf::Vector3f{ 5.0f, 4.0f, 4.0f }, colour3);
     Triangle t4(sf::Vector3f{ 4.0f, -4.0f, 2.0f }, sf::Vector3f{ 5.0f, 4.0f, 4.0f }, sf::Vector3f{ 5.0f, 4.0f, 2.0f }, colour3);
 
@@ -237,7 +147,7 @@ int main() {
                         count = k;
                     }
                 }
-                
+
                 if (max_t == -1.0f)
                 {
                     pixels[w * j * 4 + i] = 255;
@@ -256,7 +166,7 @@ int main() {
                             count = k;
                         }
                     }
-                    
+
                     pixels[w * j * 4 + i] = trs[count].r();
                     pixels[w * j * 4 + i + 1] = trs[count].g();
                     pixels[w * j * 4 + i + 2] = trs[count].b();
@@ -274,7 +184,7 @@ int main() {
 
         //clear the window
         window.clear();
-        
+
         //draw
         window.draw(sprite);
 
@@ -288,6 +198,7 @@ int main() {
         delete[]vecs[i];
     }
     delete[]vecs;
+    delete[]pixels;
 
     delete[] v_dt;
     delete[] v_dc;
