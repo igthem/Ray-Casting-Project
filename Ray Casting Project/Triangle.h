@@ -7,17 +7,20 @@
 class Triangle
 {
 private:
-    sf::Vector3f point_0, point_1, point_2, norm;
-    sf::Vector3i colour;
+    sf::Vector3f point_0, point_1, point_2, norm; // Точка 1, точка 2, точка 3, нормальнь
+    sf::Vector3i colour; // Цвет
 public:
-    //consructor
-    Triangle(const sf::Vector3f& a, const sf::Vector3f& b, const sf::Vector3f& c, const sf::Vector3i& d);
+    // Конструктор
+    Triangle(const sf::Vector3f& point_a, const sf::Vector3f& point_b, 
+        const sf::Vector3f& point_c, const sf::Vector3i& t_colour);
 
-    //destructor
+    // Деструктор
     ~Triangle() {}
 
-    float intersect(sf::Vector3f ro, sf::Vector3f rd); //ro - camera position; rd - ray from camera
+    // Проверка пересечения
+    float intersect(sf::Vector3f cam_position, sf::Vector3f cam_ray);
 
+    // Вывод цвета
     int r();
     int g();
     int b();

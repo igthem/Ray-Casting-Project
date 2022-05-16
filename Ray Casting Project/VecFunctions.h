@@ -3,16 +3,16 @@
 #ifndef VECFUNCTIONS_H
 #define VECFUNCTIONS_H
 
-//scalar multiplication
+// Скалярное произведение векторов
 float v_mul(sf::Vector3f a, sf::Vector3f b);
 
-//vector len
+// Расчёт длины вектора
 float v_len(sf::Vector3f v);
 
-//vector normalisation 
+// Нормализация вектора
 sf::Vector3f v_norm(sf::Vector3f v);
 
-//vector multiplication
+// Векторное произведение 
 sf::Vector3f v_cross(sf::Vector3f a, sf::Vector3f b);
 
 #endif

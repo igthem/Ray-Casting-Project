@@ -1,18 +1,18 @@
 #include "VecFunctions.h"
 
-//scalar multiplication
+// Скалярное произведение векторов
 float v_mul(sf::Vector3f a, sf::Vector3f b)
 {
     return(a.x * b.x + a.y * b.y + a.z * b.z);
 }
 
-//vector len
+// Расчёт длины вектора
 float v_len(sf::Vector3f v)
 {
     return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
-//vector normalisation 
+// Нормализация вектора
 sf::Vector3f v_norm(sf::Vector3f v)
 {
     float len = v_len(v);
@@ -20,7 +20,7 @@ sf::Vector3f v_norm(sf::Vector3f v)
     return v;
 }
 
-//vector multiplication
+// Векторное произведение
 sf::Vector3f v_cross(sf::Vector3f a, sf::Vector3f b)
 {
     sf::Vector3f c
