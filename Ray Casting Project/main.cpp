@@ -6,8 +6,28 @@
 #include <iostream>
 #include <cmath>
 
-// Старт ----------------------------------------------------------------------------------------------------------------------
 using namespace std;
+
+// Функция для превращения в String числа с округлением до 1 знака после запятой
+string roundTo2(float x)
+{
+    string minus;
+    if (x < 0)
+        minus = "-";
+    x = abs(x);
+    float n;
+    float y = modf(x, &n);
+    int xx = (int)round(abs((x - n) * 10));
+    if (xx == 10)
+    {
+        xx = 0;
+        if (x >= 0) x++;
+        else x--;
+    }
+    return (minus + to_string((int)x) + '.' + to_string(xx));
+}
+
+// Старт ---------------------------------------------------------------------------------------------
 int main() {
 
     // Ширина и высота жкрана
@@ -19,7 +39,9 @@ int main() {
 
     // Создание окна. sf::Style::Fullscreen - полный экран, sf::Style::Titlebar - наличие имени окна, 
     // sf::Style::Close - возможность закрыть окно
-    sf::RenderWindow window(sf::VideoMode(w, h), "RayCasting", /*sf::Style::Fullscreen |*/ sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(w, h), "RayCasting", 
+        /*sf::Style::Fullscreen |*/ sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow help(sf::VideoMode(500, 500), "Help", sf::Style::Titlebar);
 
     // Ограничение кадров в секунду
     window.setFramerateLimit(60);
@@ -33,13 +55,17 @@ int main() {
     // Направление камеры
     sf::Vector3f dir_cam(1.0f, 0.0f, 0.0f);
 
-    // Треугольник ---------------------------------------------------------------------------------------------------------------
+    // Установка шрифта
+    sf::Font font;
+    font.loadFromFile("UbuntuBold-1YyB.ttf");
+
+    // Треугольники -----------------------------------------------------------------------------------
+
+    // Вектор треугольников
+    vector <Triangle> triangles;
 
     // Количество треугольников
     const int c_triangles = 4;
-
-    float* v_dt = new float[c_triangles];
-    sf::Vector3f* v_dc = new sf::Vector3f[c_triangles];
 
     // Вектора цветов
     sf::Vector3i colour1(255, 0, 0); // 0.0 <= colour < 255.0 (r,g,b)
@@ -47,15 +73,24 @@ int main() {
     sf::Vector3i colour3(0, 0, 255);
 
     // Создание треугольников 
-    Triangle t1(sf::Vector3f{ 0.0f, 5.0f, 0.0f }, sf::Vector3f{ 0.0f, 0.0f, 5.0f }, sf::Vector3f{ 5.0f, 0.0f, 0.0f }, colour1);
-    Triangle t2(sf::Vector3f{ 6.0f, -2.0f, 0.0f }, sf::Vector3f{ 6.0f, 6.0f, 0.0f }, sf::Vector3f{ 10.0f, 0.0f, 6.0f }, colour2);
-    Triangle t3(sf::Vector3f{ 4.0f, -4.0f, 4.0f }, sf::Vector3f{ 4.0f, -4.0f, 2.0f }, sf::Vector3f{ 5.0f, 4.0f, 4.0f }, colour3);
-    Triangle t4(sf::Vector3f{ 4.0f, -4.0f, 2.0f }, sf::Vector3f{ 5.0f, 4.0f, 4.0f }, sf::Vector3f{ 5.0f, 4.0f, 2.0f }, colour3);
+    Triangle t1(sf::Vector3f{ 0.0f, 5.0f, 0.0f }, sf::Vector3f{ 0.0f, 0.0f, 5.0f }, 
+        sf::Vector3f{ 5.0f, 0.0f, 0.0f }, colour1);
+    Triangle t2(sf::Vector3f{ 6.0f, -2.0f, 0.0f }, sf::Vector3f{ 6.0f, 6.0f, 0.0f }, 
+        sf::Vector3f{ 10.0f, 0.0f, 6.0f }, colour2);
+    Triangle t3(sf::Vector3f{ 4.0f, -4.0f, 4.0f }, sf::Vector3f{ 4.0f, -4.0f, 2.0f }, 
+        sf::Vector3f{ 5.0f, 4.0f, 4.0f }, colour3);
+    Triangle t4(sf::Vector3f{ 4.0f, -4.0f, 2.0f }, sf::Vector3f{ 5.0f, 4.0f, 4.0f }, 
+        sf::Vector3f{ 5.0f, 4.0f, 2.0f }, colour3);
 
-    // Массив всех треугольников
-    Triangle trs[c_triangles] = { t1, t2, t3, t4 };
+    triangles.push_back(t1);
+    triangles.push_back(t2);
+    triangles.push_back(t3);
+    triangles.push_back(t4);
 
-    // Матрица векторов-------------------------------------------------------------------------------------------------------
+    // Вектор расстояний пересечений
+    vector <float> v_dt;
+
+    // Матрица векторов ------------------------------------------------------------------------------
     sf::Vector3f** vecs = new sf::Vector3f * [w];
     for (int i = 0; i < w; i++)
     {
@@ -76,14 +111,25 @@ int main() {
     sf::Uint8* pixels = new sf::Uint8[w * h * 4];
 
     // Текстура
-    sf::Texture texture;
-    texture.create(w, h);
+    sf::Texture pixels_texture;
+    pixels_texture.create(w, h);
 
     // Спрайт
-    sf::Sprite sprite(texture);
+    sf::Sprite pixels_sprite(pixels_texture);
 
-    // Цикл открытого окна -------------------------------------------------------------------------------------------------
+    // Цикл открытого окна ---------------------------------------------------------------------------
     while (window.isOpen()) {
+
+        // Получаем положение камеры в виде текста
+        sf::Text xyz_text("x: " + roundTo2(cam.x) + "\ny: " + roundTo2(cam.y) + 
+            "\nz :" + roundTo2(-cam.z), font);
+        xyz_text.setFillColor(sf::Color::Black);
+        xyz_text.setPosition(w/100, h/100);
+
+        // Получаем количество треугольников в виде текста
+        sf::Text count_triangles("Triangles: " + to_string(triangles.size()), font);
+        count_triangles.setFillColor(sf::Color::Black);
+        count_triangles.setPosition( w / 100, h - h / 15 );
 
         // Задание параметра события
         sf::Event event;
@@ -135,18 +181,18 @@ int main() {
         {
             for (int i = 0; i < w * 4; i += 4)
             {
-                for (int c = 0; c < c_triangles; c++)
+                for (int c = 0; c < triangles.size(); c++)
                 {
                     // Сохраняем все возможные пересечения со всеми треугольниками, 
                     // где значение - расстояние до точки пересечения
-                    v_dt[c] = trs[c].intersect(cam, vecs[i / 4][j]); 
+                    v_dt.push_back(triangles[c].intersect(cam, vecs[i / 4][j])); 
                 }
                 float max_t = v_dt[0]; // Выбор первого элемента, предпологая что он не наибольший.
                 int count = 0; // Задаём начальный индекс элементов.
 
                 // Поиск наибольшего элемента в массиве. Если нет пересечений, то выше -1.0f не поднимется, 
                 // иначе мы найдём хоть какое-то верное значение.
-                for (int k = 0; k < c_triangles; k++) 
+                for (int k = 0; k < triangles.size(); k++)
                 {
                     if (v_dt[k] > max_t)
                     {
@@ -165,7 +211,9 @@ int main() {
                 else // Если есть хоть 1 пересечение
                 {
                     float min_t = max_t;
-                    for (int k = 0; k < c_triangles; k++) // Ищем наименьшую длину, исключая неверные значения
+
+                    // Ищем наименьшую длину, исключая неверные значения
+                    for (int k = 0; k < triangles.size(); k++) 
                     {
                         if (v_dt[k] < min_t && v_dt[k] >= 0.0f)
                         {
@@ -175,29 +223,34 @@ int main() {
                     }
 
                     // Закраска пикселя соответственно с подходящим пересечением
-                    pixels[w * j * 4 + i] = trs[count].r();
-                    pixels[w * j * 4 + i + 1] = trs[count].g();
-                    pixels[w * j * 4 + i + 2] = trs[count].b();
+                    pixels[w * j * 4 + i] = triangles[count].r();
+                    pixels[w * j * 4 + i + 1] = triangles[count].g();
+                    pixels[w * j * 4 + i + 2] = triangles[count].b();
                     float a = 55 + 200.0f / min_t * 10.0f;
                     if (a <= 255.0f)
                         pixels[w * j * 4 + i + 3] = a;
                     else
                         pixels[w * j * 4 + i + 3] = 255;
                 }
+                v_dt.clear();
             }
         }
 
         // Обновление текстуры
-        texture.update(pixels);
+        pixels_texture.update(pixels);
 
         // Очистка окна
         window.clear();
+        help.clear();
 
-        // Отрисовываем текстуру на спрайте
-        window.draw(sprite);
-
+        // Отрисовываем спрайт и текста
+        window.draw(pixels_sprite);
+        window.draw(xyz_text);
+        window.draw(count_triangles);
+        
         // Отображаем экран
         window.display();
+        help.display();
     }
 
     // Очистка кода
@@ -207,9 +260,6 @@ int main() {
     }
     delete[]vecs;
     delete[]pixels;
-
-    delete[] v_dt;
-    delete[] v_dc;
 
     return 0;
 }
