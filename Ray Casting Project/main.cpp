@@ -21,8 +21,8 @@ string roundTo2(float x)
     if (xx == 10)
     {
         xx = 0;
-        if (x >= 0) x++;
-        else x--;
+        if (x >= 0) x+=1;
+        else x-=1;
     }
     return (minus + to_string((int)x) + '.' + to_string(xx));
 }
@@ -30,9 +30,13 @@ string roundTo2(float x)
 // Старт ---------------------------------------------------------------------------------------------
 int main() {
 
-    // Ширина и высота жкрана
+    // Ширина и высота экрана
     int w = 1280;
     int h = 720;
+
+    // Ширина и высота экрана для экрана помощи
+    int w2 = 850;
+    int h2 = 250;
 
     // Число ПИ
     const float  pi_f = 3.14159265358979f;
@@ -41,19 +45,19 @@ int main() {
     // sf::Style::Close - возможность закрыть окно
     sf::RenderWindow window(sf::VideoMode(w, h), "RayCasting", 
         /*sf::Style::Fullscreen |*/ sf::Style::Titlebar | sf::Style::Close);
-    sf::RenderWindow help(sf::VideoMode(500, 500), "Help", sf::Style::Titlebar);
+    sf::RenderWindow help(sf::VideoMode(w2, h2), "Help", sf::Style::Titlebar);
 
     // Ограничение кадров в секунду
     window.setFramerateLimit(60);
+
+    //
+    window.hasFocus();
 
     // Скорость камеры
     float speed = 0.1f;
 
     // Начальная позиция камеры
     sf::Vector3f cam(-10.0f, 0.0f, 0.0f);
-
-    // Направление камеры
-    sf::Vector3f dir_cam(1.0f, 0.0f, 0.0f);
 
     // Установка шрифта
     sf::Font font;
@@ -91,6 +95,7 @@ int main() {
     vector <float> v_dt;
 
     // Матрица векторов ------------------------------------------------------------------------------
+
     sf::Vector3f** vecs = new sf::Vector3f * [w];
     for (int i = 0; i < w; i++)
     {
@@ -131,6 +136,14 @@ int main() {
         count_triangles.setFillColor(sf::Color::Black);
         count_triangles.setPosition( w / 100, h - h / 15 );
 
+        // Получаем количество треугольников в виде текста
+        sf::Text help_text(L"Управление программой : \n\nWASD - перемещение по осям oX oY; \n"
+            "SpaceBar и LShift - подъём и спуск;\nBackspace - удалить последний треугольник;\n"
+            "Enter - добавить новый треуголник\n(нужно будет открыть консоль и ввести значения)", font);
+        help_text.setFillColor(sf::Color::White);
+        help_text.setPosition(w2 / 100, h2 / 100);
+        //help_text.scale(0.5f, 0.5f);
+
         // Задание параметра события
         sf::Event event;
 
@@ -148,6 +161,32 @@ int main() {
                 {
                     window.close();
                     break;
+                }
+                else if (event.key.code == sf::Keyboard::Enter) // Добавить треугольник
+                {
+                    sf::Vector3i rgb_new;
+                    sf::Vector3f point1_new, point2_new, point3_new;
+                    cout << "New Triangle!!!\nEnter colour (red green blue):\n";
+                    cin >> rgb_new.x >> rgb_new.y >> rgb_new.z;
+                    cout << "\n";
+                    cout << "Enter first point (x y z):\n";
+                    cin >> point1_new.x >> point1_new.y >> point1_new.z;
+                    cout << "\n";
+                    cout << "Enter second point (x y z):\n";
+                    cin >> point2_new.x >> point2_new.y >> point2_new.z;
+                    cout << "\n";
+                    cout << "Enter third point (x y z):\n";
+                    cin >> point3_new.x >> point3_new.y >> point3_new.z;
+                    for (int k = 0; k < 50; k++)
+                        cout << endl;
+                    triangles.push_back(Triangle(point1_new, point2_new, point3_new, rgb_new));
+                }
+                else if (event.key.code == sf::Keyboard::BackSpace) // Удалить последний треугольник
+                {
+                    if (triangles.size() > 0)
+                    {
+                        triangles.pop_back();
+                    }
                 }
                 else if (event.key.code == sf::Keyboard::W) // Вперёд
                 {
@@ -181,6 +220,14 @@ int main() {
         {
             for (int i = 0; i < w * 4; i += 4)
             {
+                if (triangles.size() < 1)
+                {
+                    pixels[w * j * 4 + i] = 255;
+                    pixels[w * j * 4 + i + 1] = 255;
+                    pixels[w * j * 4 + i + 2] = 255;
+                    pixels[w * j * 4 + i + 3] = 255;
+                    continue;
+                }
                 for (int c = 0; c < triangles.size(); c++)
                 {
                     // Сохраняем все возможные пересечения со всеми треугольниками, 
@@ -235,6 +282,7 @@ int main() {
                 v_dt.clear();
             }
         }
+        
 
         // Обновление текстуры
         pixels_texture.update(pixels);
@@ -247,10 +295,11 @@ int main() {
         window.draw(pixels_sprite);
         window.draw(xyz_text);
         window.draw(count_triangles);
+        help.draw(help_text);
         
         // Отображаем экран
-        window.display();
         help.display();
+        window.display();
     }
 
     // Очистка кода
