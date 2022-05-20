@@ -35,19 +35,8 @@ float Triangle::intersect(sf::Vector3f cam_position, sf::Vector3f cam_ray)
     return t;
 }
 
-int Triangle::r() // Вывод красного
-{
-    return Triangle::colour.x;
-}
-int Triangle::g() // Вывод зелёного
-{
-    return colour.y;
-}
-int Triangle::b() // Вывод синего
-{
-    return colour.z;
-}
-sf::Vector3i Triangle::rgb() // Вывод всего цвета разом
+// Вывод всего цвета треугольника
+sf::Vector3i Triangle::rgb()
 {
     return colour;
 }

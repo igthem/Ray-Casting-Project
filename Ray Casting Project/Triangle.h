@@ -21,9 +21,6 @@ public:
     float intersect(sf::Vector3f cam_position, sf::Vector3f cam_ray);
 
     // Вывод цвета
-    int r();
-    int g();
-    int b();
     sf::Vector3i rgb();
 };
 

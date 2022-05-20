@@ -161,10 +161,12 @@
       <UseUnicodeForAssemblerListing Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</UseUnicodeForAssemblerListing>
       <UseUnicodeForAssemblerListing Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</UseUnicodeForAssemblerListing>
     </ClCompile>
+    <ClCompile Include="Render.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="VecFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Render.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="VecFunctions.h" />
   </ItemGroup>
