@@ -246,7 +246,7 @@ int main() {
         window.draw(pixels_sprite);
         help.draw(help_text);
         
-        // Отрисовка текста с координатами, кол-вом треуголников и скоростью
+        // Отрисовка текста с координатами, кол-вом треугольников и скоростью
         window.draw(xyz_text);
         window.draw(count_triangles);
         window.draw(speed_text);

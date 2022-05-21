@@ -27,9 +27,9 @@ float Triangle::intersect(sf::Vector3f cam_position, sf::Vector3f cam_ray)
     sf::Vector3f vec_p0_cam = cam_position - Triangle::point_0;
     sf::Vector3f  q = v_cross(vec_p0_cam, cam_ray);
     float d = 1.0f / v_mul(cam_ray, Triangle::norm);
-    float u = d * v_mul(-q, vec_p0p2);
+    float u = d * v_mul(-q, vec_p0p2); 
     float v = d * v_mul(q, vec_p0p1);
-    float t = d * v_mul(-Triangle::norm, vec_p0_cam);
+    float t = d * v_mul(-Triangle::norm, vec_p0_cam); 
     if (u < 0.0f || v < 0.0f || (u + v) > 1.0f || t < 0.0f)
         t = -1.0f; 
     return t;
